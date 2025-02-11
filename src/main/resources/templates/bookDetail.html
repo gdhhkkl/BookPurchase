@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>SooBeen</title>
+</head>
+<body>
+    <form action="/cart" method="post">
+        <input type="hidden" name="book_number"  th:value="${bookD.book_number}">
+        <div  th:text="${bookD.title}"></div>
+        <div  th:text="${bookD.writer}"></div>
+        <div  th:text="${bookD.content}"></div>
+        <div  th:text="${bookD.price}"></div>
+<!--        <div>-->
+<!--            <button type="button">+</button>-->
+<!--            <input  value="1"/>-->
+<!--            <button type="button">-</button>-->
+<!--        </div>-->
+<!--        몇개 ???-->
+        <button type="submit">장바구니</button>
+    </form>
+    <button>바로구매</button>
+</body>
+</html>

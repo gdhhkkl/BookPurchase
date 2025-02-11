@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!--    <input type="date" placeholder="이소빈회원님">-->
+<!--    <h3 th:if="">장바구니에 추가한 상품 없음</h3>-->
+    <table>
+        <tr>
+            <th>책</th>
+            <th>저자</th>
+            <th>가격</th>
+<!--            <th>수량</th>-->
+        </tr>
+        <tr th:each="carts : ${cart}">
+            <form action="/order" method="post">
+                <td th:text="${carts.getBook().title}"></td>
+                <td th:text="${carts.getBook().writer}"></td>
+                <td th:text="${carts.getBook().price}"></td>
+                <td><button type="submit">주문</button></td>
+            </form>
+        </tr>
+    </table>
+</body>
+</html>
