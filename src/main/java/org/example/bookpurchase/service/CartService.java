@@ -2,21 +2,20 @@ package org.example.bookpurchase.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.bookpurchase.domain.*;
-import org.example.bookpurchase.dto.BookDto;
-import org.example.bookpurchase.dto.CartDto;
+
 import org.example.bookpurchase.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
 @Service
 public class CartService {
 
+    private static final Logger log = LoggerFactory.getLogger(CartService.class);
     private final CartListRepository cartListRepository;
     private final CartRepository cartRepository;
     private final UserService userService;
@@ -24,32 +23,34 @@ public class CartService {
 
 
     @Transactional
-    public Long cart( Long userid, Long book_number){
-
-//        User user= userRepository.findByUserId(user_id);
-//        Book book = bookRepository.findByBookNumber(book_number); 순환참조문제가 발생하는 것을 막기위해 service로 해야한다.
-
-        User user = userService.findByUseId(userid);
+    public Long cart( Long userid, Long book_number){ //Long count
+        //repository 하면...뭔 문제 생긴다고 함...그게 뭐였더라.
+        User user = userService.findByUserId(userid);
 
         Book book = bookService.findByBookId(book_number);
 
-//        CartList.createCartLit(cart, book);
 
-        Cart carts =cartRepository.findByCartId(user.getUser_id());
-        //해당유저에 장바구니가 있나?
-        if(carts!=null) {
+        Cart carts =cartRepository.findByCartId(user.getUser_id());//=>d이걸 쓰니 당연히 널이게지
+
+        log.info("카트기 확인:{}",carts);
+
+        if(carts==null) {
+            userService.findByUserId(userid);
             Cart cart =Cart.createCart(user);
             cartRepository.save(cart);
+            CartList list = CartList.createCartList(cart, book);
+            cartListRepository.save(list);
+
+        }
+        else if (carts!=null) {
+            CartList list = CartList.createCartList(carts, book);
+            cartListRepository.save(list);
         }
 
 
-//            Cart cart = Cart.createCart(user);
-//
-//            cartRepository.save(cart);
+//            Book book1 =bookService.findBookPrice(book.getPrice());
 
-            CartList list = CartList.createCartList(carts, book);
-
-            cartListRepository.save(list);
+//            Long totalPrice = book.getPrice()*count;
             // 1번 책 가격 검색 (book)
             // 1번책 가격 x 개수 = 이책총가격
 
@@ -61,13 +62,22 @@ public class CartService {
             //쿼리짜서 조회하기
             //inner->fetch로 변화해서 해야함
 
-        return list.getCartList_id();
+        return user.getUser_id();
     }
 
-    public List<CartList> findAll(){
-        List<CartList> cart = cartListRepository.findAll();
-        return cart;
+
+    @Transactional
+    public List<CartList> findCart(Long userId){
+        User user = userService.findByUserId(userId);
+
+        Cart cart = cartRepository.findByCartId(user.getUser_id());
+//        log.info("몇번 카드 : {}",cart.getCart_id());
+
+        List<CartList> cartLists =cartListRepository.findCartListByCartId(cart.getCart_id());
+        return cartLists;
     }
+
+
 
 
 

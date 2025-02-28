@@ -2,18 +2,12 @@ package org.example.bookpurchase.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import lombok.Lombok;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.bookpurchase.domain.Cart;
-import org.example.bookpurchase.domain.CartList;
-import org.example.bookpurchase.domain.User;
-import org.example.bookpurchase.dto.BookDto;
-import org.example.bookpurchase.dto.CartDto;
-import org.example.bookpurchase.dto.UserDto;
-import org.example.bookpurchase.service.BookService;
-import org.example.bookpurchase.service.CartService;
-import org.example.bookpurchase.service.UserService;
+
+import org.example.bookpurchase.domain.*;
+import org.example.bookpurchase.dto.*;
+import org.example.bookpurchase.service.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -27,12 +21,14 @@ import java.util.Objects;
 @Slf4j
 //데이터를 받는것과 페이지를 보여주는게 주 역확
 public class Home {
-//    private static final Logger log = LoggerFactory.getLogger(Home.class);
-//    @Autowired
+
     private final BookService bookService;
 //    @Autowired
     private final UserService userService;
     private final CartService cartService;
+    private final OrderService orderService;
+    private final AddressService addressService;
+    private final CardService cardService;
 //    @Autowired//
 //    public Home(BookService bookService){
 //        this.bookService = bookService;
@@ -43,9 +39,7 @@ public class Home {
     public String list(HttpSession httpSession, Model model){
         List<BookDto> bookDto = bookService.findAll();
 //        log.info("user:",session.getAttribute("user_id"));
-
         log.info("sesson : {}", httpSession.getAttribute("user_id"));
-
         model.addAttribute("book",bookDto);
         model.addAttribute("user_id", httpSession.getAttribute("user_id"));//로그아웃할때
         return "home";
@@ -55,23 +49,10 @@ public class Home {
     public String DitailBook(Model model, @RequestParam(value = "book_number") Long book_number){
 //        log.info("id : {}", book_number);
         BookDto bookDto = bookService.findById(book_number);
+
         model.addAttribute("bookD", bookDto);
         return "bookDetail";
     }
-
-    @GetMapping("/order")
-    public String order(){
-        return "order";
-    }
-
-    @GetMapping("/cart")
-    public String cart(Model model){
-
-        model.addAttribute("cart",cartService.findAll());
-
-        return "cart";
-    }
-
     // post controller
     // book 검색 -> findById
     // user 검색 -> findByUserId
@@ -79,18 +60,46 @@ public class Home {
     // return redirect:
     @PostMapping("/cart")//@RequestParam HashMap<String, Object> map=>Long bookId = Long.valueOf(map.get("bookId").toString());=>Long.valueOf(bookId)
     public String cart(HttpSession session,@RequestParam( value = "book_number" )Long book_number ){
-//        log.info("책이다:{}",book_number);
+
         Long userId = Long.valueOf(String.valueOf(session.getAttribute("user_id")));//세션으로 로그인 아이디 저장
-//        log.info("유저들어온겨:{}",userId);
-//        Long book_number = Long.valueOf(map.get("bookId").toString());
-//        log.info("유저세션:{}",userId);
 
-         cartService.cart(userId, book_number);
-
-//        log.info("담겼니?:{}",id);
-
+        cartService.cart(userId, book_number);
 
         return  "redirect:/";
+    }
+
+    @GetMapping("/order")
+    public String order(Model model,HttpSession httpSession){
+        User user= userService.findByUserId(Long.valueOf(String.valueOf(httpSession.getAttribute("user_id"))));
+        model.addAttribute("user", user);
+        Long userId = Long.valueOf(String.valueOf(httpSession.getAttribute("user_id")));
+        List<OrderList> orderLists =orderService.findOrder(userId);
+        model.addAttribute("order", orderLists);
+        return "order";
+    }
+
+
+    @PostMapping("/order")
+    public String order(HttpSession httpSession, @RequestParam(value = "book_number")Long book_number){
+        Long userId = Long.valueOf(String.valueOf(httpSession.getAttribute("user_id")));
+        log.info("useId in to order post:{}", userId);
+        orderService.order(userId, book_number);
+        return "redirect:/";
+
+    }
+
+    @GetMapping("/cart")
+    public String cart(Model model, HttpSession httpSession){
+        Long userId = Long.valueOf(String.valueOf(httpSession.getAttribute("user_id")));
+//        log.info("유저 들어왔니?:{}",userId);
+         List<CartList> cart= cartService.findCart(userId);
+
+//        List<CartList> cart = cartService.findAll();
+
+
+        model.addAttribute("cart",cart);
+
+        return "cart";
     }
 
 
@@ -119,6 +128,7 @@ public class Home {
 
 
 
+
     @GetMapping("/join")
     public String join(){
         return "join";
@@ -130,8 +140,70 @@ public class Home {
 
         return "redirect:/";
     }
+
+
+
     @GetMapping("/myPage")
-    public String myPage(){
+    public String myPage(Model model, HttpSession session){
+
+        User user= userService.findByUserId(Long.valueOf(String.valueOf(session.getAttribute("user_id"))));
+        model.addAttribute("user", user);
         return "myPage";
     }
+
+    @GetMapping("/address")
+    public String address(){
+        return "address";
+    }
+
+    @PostMapping("/address")
+    public String address( AddressDTO addressDTO,HttpSession httpSession){
+        Long userId = Long.valueOf(String.valueOf(httpSession.getAttribute("user_id")));
+
+        log.info("주소:{}{}{}",addressDTO.getPostNumber(),addressDTO.getDetailedAddress(),addressDTO.getBasicAddress());
+        addressService.addAddress(addressDTO, userId);
+        return "address";
+    }
+
+
+
+    @GetMapping("/card")
+    public String card(Model model,HttpSession httpSession){
+        Long userId =Long.valueOf(String.valueOf(httpSession.getAttribute("user_id")));
+        List<Card> card =cardService.findCard(userId);
+
+        model.addAttribute("card", card);
+        return "card";
+    }
+    @PostMapping("/card")
+    public String card(HttpSession httpSession, CardDto cardDto){
+        log.info("CardDto:{}",cardDto.getCardNumber());
+        Long userId = Long.valueOf(String.valueOf(httpSession.getAttribute("user_id")));
+        cardService.addCard(cardDto,userId);
+        return "card";
+    }
+    @GetMapping("/memberInformation")
+    public String memberInformation(){
+        return "memberInformation";
+    }
+
+    @GetMapping("/addresss")
+    public String addresss(Model model, HttpSession httpSession){
+        Long userId = Long.valueOf(String.valueOf(httpSession.getAttribute("user_id")));
+        List<Address> address = addressService.findById(userId);
+//        log.info("주소 나와라:{}");
+        model.addAttribute("address", address);
+        return "postAddress";
+    }
+
+    @PostMapping("/addresss")
+    public String addresss(@RequestBody AddressDTO addressDTO, HttpSession httpSession){
+        log.info("controller:{}", addressDTO.getBasicAddress());
+        Long userId = Long.valueOf(String.valueOf(httpSession.getAttribute("user_id")));
+
+        orderService.save(addressDTO, userId);
+        return "redirect:/";
+    }
+
+
 }

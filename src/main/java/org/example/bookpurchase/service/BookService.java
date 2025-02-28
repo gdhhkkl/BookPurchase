@@ -22,13 +22,21 @@ public class BookService {
     }
 
 
-    public BookDto findById(Long book_number){
+    public BookDto findById(Long book_number){//상세페이지
         Book book =bookRepository.findById(book_number).orElseThrow(()-> new NullPointerException("해당 책은 존재하지 않습니다."));
         return BookDto.of(book);
     }
+
+
+
     public  Book findByBookId(Long book_number){
         Book book = bookRepository.findByBookNumber(book_number);
         return book;
     }
+
+//    public Book findBookPrice(Long price){
+//        Book book = bookRepository.findBookPrice(price);
+//        return book;
+//    }
 
 }

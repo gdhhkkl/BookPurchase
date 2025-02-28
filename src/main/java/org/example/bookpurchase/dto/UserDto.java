@@ -3,7 +3,6 @@ package org.example.bookpurchase.dto;
 
 import lombok.*;
 import org.example.bookpurchase.domain.User;
-import org.hibernate.annotations.processing.Pattern;
 
 //@Getter
 @AllArgsConstructor

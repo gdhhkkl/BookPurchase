@@ -21,15 +21,15 @@ public class UserService {
     private final UserRepository userRepository;
 
 
-    public User findByUseId(Long userId){
-        User user = userRepository.findByUserId(userId);
+    public User findByUserId(Long userId){
+        User user = userRepository.findByUserId(String.valueOf(userId)).orElseThrow(() -> new NullPointerException("유저가 존재하지 않습니다."));
 //        log.info("유저찾기:{}",user.getUser_id());
         return user;
 
     }
-    public List<User> findByUsers(){
-        return userRepository.findAll();
-    }
+//    public List<User> findByUsers(){
+//        return userRepository.findAll();
+//    }
 
     public User creat(UserDto userDto){
         return userRepository.save(User.toEntity(userDto));
@@ -44,6 +44,11 @@ public class UserService {
 //        log.info("user: {} ", user.getIdentification());
         return user;
     }
+//    public User findByName(String name){
+//        User user = userRepository.findByName(name);
+//
+//        return user;
+//    }
 
 
 }

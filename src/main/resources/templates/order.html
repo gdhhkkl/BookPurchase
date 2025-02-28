@@ -5,13 +5,35 @@
     <title>Title</title>
 </head>
 <body>
+    <span>
+        <a th:href="@{/}">홈</a>
+        <h2 th:text="${user.name}"></h2>
+    </span>
     <table>
         <tr>
             <th>주문번호</th>
             <th>수령인</th>
             <th>주문상품</th>
-            <th>배송지</th>
+            <th>주문금액</th>
+            <th>주문수량</th>
+            <th>주소</th>
+            <th>카드</th>
+            <th>주문상태</th>
+
+
         </tr>
+        <tr th:each="orders : ${order}">
+            <td></td>
+            <td th:text="${user.name}"></td>
+            <td th:text="${orders.getBook().title}"></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+
+        </tr>
+
     </table>
 </body>
 </html>

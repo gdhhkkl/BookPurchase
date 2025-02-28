@@ -11,4 +11,6 @@ import java.util.List;
 public interface BookRepository extends JpaRepository<Book, Long> {
     @Query("select m from Book m where m.book_number = :book_number")
     Book findByBookNumber(Long book_number);
+    @Query("select m from Book m where m.price = :price")
+    Book findBookPrice(Long price);
 }

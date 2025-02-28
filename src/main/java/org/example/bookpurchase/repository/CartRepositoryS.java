@@ -16,18 +16,18 @@ import java.util.List;
 public class CartRepositoryS {
     private static final Logger log = LoggerFactory.getLogger(CartRepositoryS.class);
 
-    private final EntityManager em;//주입안된상태
+    private final EntityManager em;
 
 
     public CartRepositoryS(EntityManager em) {
         this.em = em;
     }
 
-//    public List<CartDto> findCart (){
-//      String jpql = """
-//              select new (org.example.bookpurchase.dto.CartDto from Cart m join fetch m.cartLists""";
-//      List<CartDto> carts = em.createQuery(jpql, CartDto.class).getResultList();
-//      return carts;
-//    }
+    public List<CartDto> findCart (){
+      String jpql = """
+              select new m org.example.bookpurchase.dto.CartDto from Cart m join fetch m.cartLists""";
+      List<CartDto> carts = em.createQuery(jpql, CartDto.class).getResultList();
+      return carts;
+    }
 
 }
