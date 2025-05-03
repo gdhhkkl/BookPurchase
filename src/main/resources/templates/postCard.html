@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<span>
+        <a th:href="@{/}">홈</a>
+    </span>
+<div>
+    <label>카드</label>
+    <form action="/card">
+        <select name="cardNumber"  >
+            <option selected>카드릀 선택해주세요</option>
+            <option th:each="cards : ${card}" th:value="${cards.getCardNumber()}"   th:text="${cards.getCardNumber()}"></option>
+        </select>
+        <button type="submit">저장</button>
+    </form>
+</div>
+</body>
+</html>
