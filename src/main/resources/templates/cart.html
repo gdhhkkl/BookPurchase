@@ -6,7 +6,6 @@
 </head>
 <body>
 <!--    <input type="date" placeholder="이소빈회원님">-->
-<!--    <h3 th:if="">장바구니에 추가한 상품 없음</h3>-->
     <span>
         <a th:href="@{/}">홈</a>
     </span>
@@ -16,20 +15,57 @@
             <th>저자</th>
             <th>수량</th>
             <th>가격</th>
-
-<!--            <th>수량</th>-->
+            <th>....</th>
         </tr>
-        <tr th:each="carts : ${cart}">
-            <form action="/order" method="post">
-                <input type="hidden" name="book_number" th:value="${carts.getBook().book_number}">
-                <td th:text="${carts.getBook().title}"></td>
-                <td th:text="${carts.getBook().writer}"></td>
-                <td th:text="${carts.getBook().count}"></td>
-                <td th:text="${carts.getBook().price}"></td>
-                <td><button type="submit">주문</button></td>
+<!--        <form action="/order" method="post">-->
 
-            </form>
-        </tr>
+            <tr th:each="carts : ${cart}">
+                <form action="/delete" method="post">
+                    <input type="hidden" name="book_number" th:value="${carts.getBook().book_number}">
+                    <td th:text="${carts.getBook().title}"></td>
+                    <td th:text="${carts.getBook().writer}"></td>
+                    <td th:text="${carts.getBook_total_count()}"></td>
+                    <td th:text="${carts.getBook_total_price()}"></td>
+                    <td><button type="submit">삭제</button></td>
+                </form>
+            </tr>
+
+
+<!--        </form>-->
+
     </table>
+    <div>
+        <input type="hidden" th:value="${price}" id="price"/>
+        <h3>총금액</h3>
+        <h2 th:text="${price}" ></h2>
+    </div>
+    <form id="editCountForm" th:href="@{/order}" method="get">
+        <button onclick="onClickCheckNullPrice()" >주문</button>
+    </form>
+
+
+
+    <script type = "text/javascript">
+        let price = document.getElementById("price");
+        const editCountForm = document.getElementById('editCountForm');
+        // const value = price.options[price.selectedIndex].value;
+        editCountForm.addEventListener(price, function (event){
+            if(Number(price) == 0){
+                event.preventDefault();
+                alert('장바구니에 상품이 담겨있지 않습니다. 주문할수없습니다.')
+            }else{
+                event.preventDefault();
+                editCountForm.submit();
+            }
+        })
+
+        // function onClickCheckNullPrice() {
+        //     // console.log(price.value);
+        //     if(Number(price) == 0){
+        //         alert("상품이 없습니다.");
+        //         window.history.back();
+        //     }
+        // }
+    </script>
 </body>
 </html>

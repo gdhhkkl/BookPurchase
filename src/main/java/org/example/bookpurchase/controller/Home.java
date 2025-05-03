@@ -10,8 +10,12 @@ import org.example.bookpurchase.dto.*;
 import org.example.bookpurchase.service.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -19,7 +23,7 @@ import java.util.Objects;
 @RequiredArgsConstructor//final 이나 @NotNull인 필드 값만 파라미터로 받는 생성자를 생성
 @Controller//프리젠테이션 개층
 @Slf4j
-//데이터를 받는것과 페이지를 보여주는게 주 역확
+
 public class Home {
 
     private final BookService bookService;
@@ -29,7 +33,8 @@ public class Home {
     private final OrderService orderService;
     private final AddressService addressService;
     private final CardService cardService;
-//    @Autowired//
+    private final CartListService cartListService;
+
 //    public Home(BookService bookService){
 //        this.bookService = bookService;
 //    }
@@ -59,49 +64,113 @@ public class Home {
     // service add Cart
     // return redirect:
     @PostMapping("/cart")//@RequestParam HashMap<String, Object> map=>Long bookId = Long.valueOf(map.get("bookId").toString());=>Long.valueOf(bookId)
-    public String cart(HttpSession session,@RequestParam( value = "book_number" )Long book_number ){
+    public String cart(HttpSession session,@RequestParam( value = "book_number" )Long book_number, Long count,Model model ){
+        log.info("책수량 넣어왔나?{}",count);
 
+
+        if(session.getAttribute("user_id")==null){
+            model.addAttribute("message","로그인 후 이용해 주세요");
+            model.addAttribute("searchUrl","/login");
+            return "message";
+        }
         Long userId = Long.valueOf(String.valueOf(session.getAttribute("user_id")));//세션으로 로그인 아이디 저장
+        cartService.cart(userId, book_number , count);
 
-        cartService.cart(userId, book_number);
+        //여기서 책 수량 체크
 
         return  "redirect:/";
     }
 
-    @GetMapping("/order")
+    @GetMapping("/order")//주문내역보여주는것
     public String order(Model model,HttpSession httpSession){
+
+        if(httpSession.getAttribute("user_id")==null){
+            model.addAttribute("message","로그인 후 이용해 주세요");
+            model.addAttribute("searchUrl","/login");
+            return "message";
+        }
+
         User user= userService.findByUserId(Long.valueOf(String.valueOf(httpSession.getAttribute("user_id"))));
         model.addAttribute("user", user);
+
         Long userId = Long.valueOf(String.valueOf(httpSession.getAttribute("user_id")));
         List<OrderList> orderLists =orderService.findOrder(userId);
+        System.out.println(Arrays.toString(orderLists.stream().toArray()));
         model.addAttribute("order", orderLists);
-        return "order";
+        return "orderList";
     }
 
 
-    @PostMapping("/order")
-    public String order(HttpSession httpSession, @RequestParam(value = "book_number")Long book_number){
-        Long userId = Long.valueOf(String.valueOf(httpSession.getAttribute("user_id")));
-        log.info("useId in to order post:{}", userId);
-        orderService.order(userId, book_number);
+    @PostMapping("/order")//주문하기
+//    public String order(HttpSession httpSession, @RequestParam(value = "book_number")Long book_number,@PathVariable String basicAddress){
+        public String order(HttpSession httpSession, @RequestParam HashMap<String, Objects> data){
+
+            Long userId = Long.valueOf(String.valueOf(httpSession.getAttribute("user_id")));
+            log.info("useId in to order post:{}", userId);
+//            log.info("address:{}",data.get("basicAddress"));
+//            Long book_number = Long.valueOf(String.valueOf(data.get("book_number")));
+
+            String basicAddress = String.valueOf(data.get("basicAddress"));
+            String cardNumber = String.valueOf(data.get("cardNumber"));
+            log.info("카드버호:{}",cardNumber);
+            orderService.order(userId,basicAddress,cardNumber);
+
         return "redirect:/";
 
+    }
+    @GetMapping("/orders")
+    public String orders(Model model, HttpSession httpSession){
+        Long userId = Long.valueOf(String.valueOf(httpSession.getAttribute("user_id")));
+
+        List<Address> address = addressService.findById(userId);
+
+        List<Card> cards = cardService.findCard(userId);
+        model.addAttribute("address", address);
+        model.addAttribute("card",cards);
+        return "order";
     }
 
     @GetMapping("/cart")
     public String cart(Model model, HttpSession httpSession){
-        Long userId = Long.valueOf(String.valueOf(httpSession.getAttribute("user_id")));
-//        log.info("유저 들어왔니?:{}",userId);
+        if(httpSession.getAttribute("user_id")==null){
+            model.addAttribute("message","로그인 후 이용해 주세요");
+            model.addAttribute("searchUrl","/login");
+            return "message";
+        }
+        Long userId = Long.valueOf(String.valueOf(httpSession.getAttribute("user_id")));;
+
+
+        log.info("유저 들어왔니?:{}",userId);
          List<CartList> cart= cartService.findCart(userId);
 
-//        List<CartList> cart = cartService.findAll();
+//         if(cart==null){
+//             model.addAttribute("message","담아둔 책이 없습니다.");
+//             model.addAttribute("searchUrl","/");
+//             return "message"; //작동안됨ㅋㅋㅋㅋ
+//         }
 
+        Long cartTotalPrice = cartService.cartTotalPrice(cart);
 
         model.addAttribute("cart",cart);
+        model.addAttribute("price", cartTotalPrice);
+
 
         return "cart";
     }
+//    @GetMapping("/delet")
+//    public String delete(@RequestParam("book_number")Long id){
+//        log.info("delet:{}",id);
+//        cartService.delete(id);
+//        return "redirect:/cart";
+//    }
 
+    @PostMapping ("/delete")
+    public String delete(@RequestParam("book_number")Long book_number ){
+        log.info("삭제할것:{}",book_number);
+
+        cartListService.delete(book_number);
+        return "redirect:/cart";
+    }
 
     @GetMapping("/login")
     public String login(HttpServletRequest httpServletRequest){//
@@ -110,19 +179,26 @@ public class Home {
     }
 
     @PostMapping("/login")
-    public String login(HttpSession httpSession, @RequestParam HashMap<String, Objects> hashMap){
-//        log.info("id왜 null나옴?:{}", hashMap.get("identification"));
+    public String login(HttpSession httpSession, @RequestParam HashMap<String, Objects> hashMap, Model model){
+//        if(hashMap.get("identification").equals("") || hashMap.get("password").equals("")){
+//            MessageDto message = new MessageDto("아이디 및 비밀번호를 확인해주세요","/login",RequestMethod.GET, null);
+//            return showMessage(message, model);
+//        }
         User user = userService.login(hashMap);//헤시맵으로 던짐
 //        log.info("user_id: {}",user.getIdentification());
-        httpSession.setAttribute("user_id", user.getIdentification().toString());
-        log.info("sesson : {}", httpSession.getAttribute("user_id"));
+
+         httpSession.setAttribute("user_id", user.getIdentification().toString());
+
+//        log.info("sesson : {}", httpSession.getAttribute("user_id"));
         return "redirect:/";//파라미터 주소
     }
 
     @GetMapping("/logout")
-    public String logout(HttpSession httpSession){
+    public String logout(HttpSession httpSession,Model model){
         httpSession.setAttribute("user_id", null);
-        return "redirect:/";
+        model.addAttribute("message","로그아웃 되었습니다. ");
+        model.addAttribute("searchUrl","/");
+        return "message";
     }
 
 
@@ -134,19 +210,25 @@ public class Home {
         return "join";
     }
     @PostMapping("/join")
-    public String joins(UserDto userDto){
+    public String joins(UserDto userDto,Model model){
 //        log.info("내용 : {}",userDto);
+        model.addAttribute("message","회원가입 성공");
+        model.addAttribute("searchUrl","/");
         userService.creat(userDto);
-
-        return "redirect:/";
+        return "message";
     }
 
 
 
     @GetMapping("/myPage")
     public String myPage(Model model, HttpSession session){
-
+        if(session.getAttribute("user_id")==null){
+            model.addAttribute("message","로그인 후 이용해 주세요");
+            model.addAttribute("searchUrl","/login");
+            return "message";
+        }
         User user= userService.findByUserId(Long.valueOf(String.valueOf(session.getAttribute("user_id"))));
+
         model.addAttribute("user", user);
         return "myPage";
     }
@@ -168,13 +250,18 @@ public class Home {
 
 
     @GetMapping("/card")
-    public String card(Model model,HttpSession httpSession){
-        Long userId =Long.valueOf(String.valueOf(httpSession.getAttribute("user_id")));
-        List<Card> card =cardService.findCard(userId);
+    public String card(){
 
-        model.addAttribute("card", card);
         return "card";
     }
+    @GetMapping("/cardd")
+    public String cardd(Model model,HttpSession httpSession){
+        Long userId =Long.valueOf(String.valueOf(httpSession.getAttribute("user_id")));
+        List<Card> card =cardService.findCard(userId);
+        model.addAttribute("card", card);
+        return "postCard";
+    }
+
     @PostMapping("/card")
     public String card(HttpSession httpSession, CardDto cardDto){
         log.info("CardDto:{}",cardDto.getCardNumber());
@@ -197,13 +284,16 @@ public class Home {
     }
 
     @PostMapping("/addresss")
-    public String addresss(@RequestBody AddressDTO addressDTO, HttpSession httpSession){
-        log.info("controller:{}", addressDTO.getBasicAddress());
+    public String addresss(@RequestBody String address, HttpSession httpSession){
+        log.info("controller:{}", address);
         Long userId = Long.valueOf(String.valueOf(httpSession.getAttribute("user_id")));
 
-        orderService.save(addressDTO, userId);
+//        orderService.save(address, userId);
         return "redirect:/";
     }
-
+//    private String showMessage(final MessageDto params, Model model){
+//        model.addAttribute("prrams",params);
+//        return "messageDto";
+//    }
 
 }

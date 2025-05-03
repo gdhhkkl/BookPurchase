@@ -12,9 +12,9 @@
     <div>
         <label>주소</label>
         <form action="/addresss" method="post">
-            <select  >
-                <option value="" selected>기본배송지를 선택해주세요</option>
-                <option name="basicAddress" th:value="${address.basicAddress}" th:each="address : ${address}"  th:text="${address.basicAddress}"></option>
+            <select name="basicAddress"  >
+                <option value="기본배송지" selected>기본배송지를 선택해주세요</option>
+                <option th:value="${address.basicAddress}" th:each="address : ${address}"  th:text="${address.basicAddress}"></option>
             </select>
             <button type="submit">저장</button>
         </form>

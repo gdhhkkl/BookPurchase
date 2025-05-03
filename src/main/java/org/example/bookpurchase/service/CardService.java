@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -24,14 +25,14 @@ public class CardService {
     private UserService userService;
     public Card addCard(CardDto cardDto, Long userId){
         User user = userService.findByUserId(userId);
-        return save(new Card(0L,
+        return save(new Card(0L, //new Card()이 안에 넣는것도 .하는거랑 동일함
                 cardDto.getCardNumber(),
                 cardDto.getCardDate(),
                 cardDto.getCardType(),
                 user
         ));
     }
-
+    @Transactional
     public Card save(Card card){
         return cardRepository.save(card);
     }
@@ -42,5 +43,10 @@ public class CardService {
         log.info("뭐노:{}",cards);
         return cards;
     }
+//    public List<Card> findById(Long userId){
+//        User user = userService.findByUserId(userId);
+//        List<Card> cards = cardRepository.findCardByUserId(user.getUser_id());
+//        return cards;
+//    }
 
 }

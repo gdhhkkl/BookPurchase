@@ -12,4 +12,7 @@ import java.util.List;
 public interface OrderListRepository extends JpaRepository<OrderList,Long> {
     @Query("select m from OrderList m where m.order.order_id = :orderId")
     List<OrderList> findOrderListByOrder(Long orderId);
+
+    @Query("select m from OrderList m join fetch m.book join fetch m.order")//SELECT m*, n*, h* FROM bookpurchase.orderList m inner join....
+    List<OrderList> findOrderList(Long userId);
 }

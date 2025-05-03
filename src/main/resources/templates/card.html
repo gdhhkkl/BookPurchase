@@ -4,14 +4,15 @@
     <title>Document</title>
 </head>
 <body>
+    <span>
+        <a th:href="@{/myPage}">이전</a>
+    </span>
     <form action="/card" method="post">
         <input name="cardNumber" type="text" placeholder="카드번호">
         <input name="cardDate" type="text" placeholder="유효기간">
         <input name="cardType" type="text" placeholder="카드종류">
         <button type="submit">등록</button>
     </form>
-    <div th:each="card : ${card}">
-        <p th:text="${card}"></p>
-    </div>
+    <a th:href="@{/cardd}">카드</a>
 </body>
 </html>

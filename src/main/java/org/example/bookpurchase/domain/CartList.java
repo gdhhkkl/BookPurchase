@@ -2,10 +2,10 @@ package org.example.bookpurchase.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.example.bookpurchase.repository.CartRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -32,18 +32,35 @@ public class CartList {
     @JoinColumn(name = "book_number")
     private Book book;//연관관계
 
-    public static CartList createCartList(Cart cart, Book book){
+    public void setCount(Long count){
+        this.book_total_count = count;
+    }
+    public void setPrice(Long price){
+        this.book_total_price = price;
+    }
+
+    public static CartList createCartList(Cart cart, Book book, Long price, Long count){//파라미터 잘못 자리 지정해서 반대로 들어감....학ㅆ..
         CartList cartList = new CartList();
 
         cartList.setBook(book);
         cartList.setCart(cart);
-
+        cartList.setPrice(price);
+        log.info("카드 총 가격 : {}",price);
+        cartList.setCount(count);
 
         return cartList;
     }
 
 
+    public static List<Long> toBookIds(List<CartList> list) {//static을 싫어하는이유가 난발해서 써버리면 쌓이니까 문제가 디서
+        List<Long> result = new ArrayList<>();//담아서 던져줘야하니까 담는거 한나 만듬
 
+        for(int i=0; i<list.size(); i++) {
+            result.add(list.get(i).getBook().getBook_number());
+        }
+        log.info("책들어간다.:{}",result);
+        return result;
+    }
 
 
 

@@ -1,9 +1,5 @@
-a{
-
-    color: aqua;
-}
-
 .table{
     display: flex;
     justify-content: center;
+    align-items: center;
 }

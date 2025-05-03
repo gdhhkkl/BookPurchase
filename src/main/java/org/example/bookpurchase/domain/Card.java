@@ -3,20 +3,19 @@ package org.example.bookpurchase.domain;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.example.bookpurchase.dto.CardDto;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 public class Card {
-    private static final Logger log = LoggerFactory.getLogger(Card.class);
+
     @Id
     @Column(name = "card_id")
-//    @GeneratedValue(strategy = GenerationType.AUTO)
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long card_id;
     @Column(nullable = false)
     private String cardNumber;

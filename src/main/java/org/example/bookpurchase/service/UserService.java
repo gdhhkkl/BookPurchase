@@ -32,6 +32,10 @@ public class UserService {
 //    }
 
     public User creat(UserDto userDto){
+        User user = userRepository.findByName(userDto.getIdentification());
+//        if(userDto.getIdentification().equals(user)){
+//            받아온 아이디랑 저장된 아이디가 동일하면 에러 발생
+//        }
         return userRepository.save(User.toEntity(userDto));
     }
 
@@ -49,6 +53,10 @@ public class UserService {
 //
 //        return user;
 //    }
-
+//    public User findCart(Long cart_id){
+//        User user = userRepository.findUserByCarts(cart_id);
+//        log.info("findCarts:{}",user.getCarts());
+//        return user;
+//    }
 
 }
