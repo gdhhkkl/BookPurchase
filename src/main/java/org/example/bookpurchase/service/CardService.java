@@ -36,11 +36,11 @@ public class CardService {
     public Card save(Card card){
         return cardRepository.save(card);
     }
-
+    @Transactional
     public List<Card> findCard(Long userId){
         User user =userService.findByUserId(userId);
-        List<Card> cards = cardRepository.findCardByUserId(user.getUser_id());
-        log.info("뭐노:{}",cards);
+        List<Card> cards = cardRepository.findByUser(user);
+        log.info("뭐노:{}",cards.get(0).getCard_id());
         return cards;
     }
 //    public List<Card> findById(Long userId){

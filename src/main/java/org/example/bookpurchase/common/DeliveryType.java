@@ -1,4 +1,4 @@
-package org.example.bookpurchase.domain;
+package org.example.bookpurchase.common;
 
 public enum DeliveryType {
     배송중, 배송완료

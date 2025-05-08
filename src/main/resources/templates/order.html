@@ -7,8 +7,19 @@
 <body>
     <span>
         <a th:href="@{/}">홈</a>
-<!--        <h2 th:text="${user.name}"></h2>-->
     </span>
+    <div>
+        <h1>주무할 도서</h1>
+<!--        <table>-->
+<!--            <tr th:each="cartBook : ${cartBook}">-->
+<!--                <td th:text="${cartBook.get(0).getBook().title}"></td>-->
+<!--                <td th:text="${cartBook.get(0).getBook().writer}"></td>-->
+<!--                <td th:text="${cartBook.get(0).book_total_count}"></td>-->
+<!--                <td th:text="${cartBook.get(0).book_total_price}"></td>-->
+<!--            </tr>-->
+<!--        </table>-->
+
+    </div>
    <div>
        <form action="/order" method="post">
            <div>
@@ -27,8 +38,8 @@
            <button type="submit">결제</button>
        </form>
    </div>
-    <div>
+    <script type="text/javascript">
 
-    </div>
+    </script>
 </body>
 </html>

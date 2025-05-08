@@ -9,14 +9,22 @@
         <a th:href="@{/}">홈</a>
     </span>
 <div>
-    <label>카드</label>
-    <form action="/card">
-        <select name="cardNumber"  >
-            <option selected>카드릀 선택해주세요</option>
-            <option th:each="cards : ${card}" th:value="${cards.getCardNumber()}"   th:text="${cards.getCardNumber()}"></option>
-        </select>
-        <button type="submit">저장</button>
-    </form>
+    <table>
+        <tr>
+            <th>카드번호</th>
+            <th>카드날짜</th>
+            <th>카드타입</th>
+        </tr>
+
+        <tr th:each="cards : ${card}">
+            <form action="/card" method="post">
+                <td th:text="${cards.getCardNumber()}"></td>
+                <td th:text="${cards.getCardDate()}"></td>
+                <td th:text="${cards.getCardType()}"></td>
+                <td><button type="submit">저장</button></td>
+            </form>
+        </tr>
+    </table>
 </div>
 </body>
 </html>

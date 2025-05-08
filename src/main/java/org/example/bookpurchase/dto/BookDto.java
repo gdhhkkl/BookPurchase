@@ -19,7 +19,7 @@ public class BookDto {
     private Long price;
 
 
-    public static BookDto of(Book book){//of는 파라미터가 한개일때 from은 여러개일때여...
+    public static BookDto of(Book book){//of는 파라미터가 한개일때 from은 여러개일때여..생성자함수.
         return BookDto.builder()
                 .book_number(book.getBook_number())
                 .title(book.getTitle())

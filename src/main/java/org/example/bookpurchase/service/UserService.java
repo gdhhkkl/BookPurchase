@@ -31,12 +31,11 @@ public class UserService {
 //        return userRepository.findAll();
 //    }
 
-    public User creat(UserDto userDto){
-        User user = userRepository.findByName(userDto.getIdentification());
-//        if(userDto.getIdentification().equals(user)){
-//            받아온 아이디랑 저장된 아이디가 동일하면 에러 발생
-//        }
-        return userRepository.save(User.toEntity(userDto));
+    public void creat(UserDto userDto){
+
+        userRepository.save(User.toEntity(userDto));
+
+
     }
 
     public User login(HashMap<String, Objects> hashMap){
@@ -58,5 +57,25 @@ public class UserService {
 //        log.info("findCarts:{}",user.getCarts());
 //        return user;
 //    }
+    public User checkUser (UserDto userDto){
+        String id = userDto.getIdentification();
+        String  pw = userDto.getPassword();
+        List<User> findSameUser = userRepository.findByIdANdPw(id, pw);
+        List<User> findSomeUser = userRepository.findByIdentification(id);
+        List<User> findByPw = userRepository.findByPassword(pw);
+        if(!findSameUser.isEmpty()){
+            throw new IllegalArgumentException("회당 아이와 비번은 이미 존재합니다.");
+        } else if (!findSomeUser.isEmpty()) {
+            throw new IllegalArgumentException("회당 아이디는 이미 존재합니다.");
+        }else if(!findByPw.isEmpty()){
+            throw new IllegalArgumentException("해당 비번은 이미 존재합니다.");
+        }
+        return User.toEntity(userDto);
+    }
+    public List<User> findUSer(String id, String pw){
+        List<User> user = userRepository.findByIdANdPw(id, pw);
+        return user;
+    }
+
 
 }

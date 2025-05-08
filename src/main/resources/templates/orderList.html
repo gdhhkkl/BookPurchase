@@ -17,19 +17,21 @@
             <th>주문수량</th>
             <th>주소</th>
             <th>카드</th>
-
-
         </tr>
-        <tr th:each="orders : ${order}">
-            <td th:text="${orders.order.order_id}"></td>
-            <td th:text="${user.name}"></td>
-            <td th:text="${orders.getBook().title}"></td>
-            <td th:text="${orders.book_total_price}"></td>
-            <td th:text="${orders.book_total_count}"></td>
-            <td th:text="${orders.getOrder().basicAddress}"> </td>
-            <td th:text="${orders.getOrder().card_number}"></td>
-        </tr>
+        <form action="/orderDelete" method="post">
 
+            <tr th:each="orders : ${order}">
+                <input type="hidden" name="orderID" th:value="${orders.getOrderList_id()}">
+                <td th:text="${orders.order.order_id}"></td>
+                <td th:text="${user.name}"></td>
+                <td th:text="${orders.getBook().title}"></td>
+                <td th:text="${orders.book_total_price}"></td>
+                <td th:text="${orders.book_total_count}"></td>
+                <td th:text="${orders.getOrder().basicAddress}"> </td>
+                <td th:text="${orders.getOrder().card_number}"></td>
+                <td><button type="submit">삭제</button></td>
+            </tr>
+        </form>
     </table>
 </body>
 </html>

@@ -21,6 +21,8 @@ public class Cart {
     @JoinColumn(name = "user_id")
     private User user; 
 
+//    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<CartList> cartLists = new ArrayList<>();G
 
     //===연관관계 메서드==//
     public void setUser(User user){

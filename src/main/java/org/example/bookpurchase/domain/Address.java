@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @AllArgsConstructor
@@ -12,8 +13,9 @@ import lombok.NoArgsConstructor;
 @Getter
 public class Address {
     @Id
-    @Column(name = "address_id")
-//    @GeneratedValue(strategy = GenerationType.IDENTITY) // 자동으로 증가한다 -> 데이터를 안넣어도됨//이것 때문에...selet 두번됨..ㅅㅂ
+    @Column(name = "address_id")//columnDefinition = "BINARY(16)"
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)//    @GeneratedValue(generator = "uuid2")// 자동으로 증가한다 -> 데이터를 안넣어도됨//이것 때문에...selet 두번됨..ㅅㅂ
+//    @GenericGenerator(name = "uuid2", strategy = "uuid2")
     private Long address_id;
 
     @Column(length = 8, nullable = false)
@@ -38,8 +40,6 @@ public class Address {
 //                user
 //        );
 //    }
-    public void setAddress_id(){
 
-    }
 
 }

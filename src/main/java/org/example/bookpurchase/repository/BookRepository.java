@@ -13,5 +13,6 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     Book findByBookNumber(Long book_number);
     @Query("select m from Book m where m.price = :price")
     Book findBookPrice(Long price);
-
+    @Query("select m from Book m where m.book_number = :id")
+    List<Book> findByBook_number(Long id);
 }

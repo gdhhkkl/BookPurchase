@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div>
+    <form action="/orderNow" method="post">
+        <input type="hidden" name="book_number" id="bookNumber" th:value="${book_number}">
+        <input type="hidden" name="bookCount" id="bookCount" th:value="${book_count}">
+        <div>
+            <select name="basicAddress"  >
+                <option  selected>배송지 선택</option>
+                <option  th:value="${address.basicAddress}" th:each="address : ${address}"  th:text="${address.basicAddress}"></option>
+
+            </select>
+        </div>
+        <div>
+            <select name="cardNumber"  >
+                <option selected>결제 수단 선택</option>
+                <option th:each="cards : ${card}" th:value="${cards.getCardNumber()}"   th:text="${cards.getCardNumber()}"></option>
+            </select>
+        </div>
+        <button type="submit" onclick="init()">결제</button>
+    </form>
+</div>
+<script type="text/javascript">
+
+        // const bookId = document.getElementById("bookNumber").value;
+        const count = document.getElementById("bookCount").value;
+
+        document.getElementById("bookCount").value = Number(document.cookie.split("=")[1]);
+
+        function init() {//초기화를 해줘야해서 init필요한거임
+            document.cookie = "";
+        }
+</script>
+</body>
+</html>

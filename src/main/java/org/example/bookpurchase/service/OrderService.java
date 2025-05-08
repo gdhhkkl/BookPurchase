@@ -29,6 +29,7 @@ public class OrderService {
     private final CartRepository cartRepository;
     private final CartListService cartListService;
     private final CartListRepository cartListRepository;
+    private final OrderListService orderListService;
 
 
     @Transactional
@@ -109,6 +110,11 @@ public class OrderService {
         List<OrderList> orderLists = orderListRepository.findOrderList(user.getUser_id());
         return orderLists;
     }
+    @Transactional
+    public void delete(Long orderListId) { // 이거 리스트에서 삭제하는게 아니라 order쪽에서 삭제해하하는거야? 그럼 기록은????
+        OrderList orderList = orderListService.findId(orderListId);
+        orderListRepository.delete(orderList);
+    }
 //    @Transactional
 //    public Order save(String address ,Long userId){
 //        User user = userService.findByUserId(userId);
@@ -125,6 +131,30 @@ public class OrderService {
 //        //1번 유저의 address 넣기
 //
 //    }
+    @Transactional
+    public Order orderNowBook ( Long userid, String basicAddress,String cardNumber,Long book_number,Long countNumber){
+        Long result=0L;
+        Long price =0L;
+        User user = userService.findByUserId(userid);
+
+        List<Book> orderNowBook = bookService.findByID(book_number);
+
+
+        Order order = Order.createOrder(user,basicAddress,cardNumber);
+
+        orderRepository.save(order);
+
+        if(book_number!=null){
+            for (int i=0; i<1; i++){
+
+                price = orderNowBook.get(i).getPrice();
+                result = countNumber*price;
+                List<OrderList> orderLists = OrderList.createOrderList(order,orderNowBook,countNumber,result);
+                orderListRepository.save(orderLists.get(i));
+            }
+        }
+        return order;
+    }
 
 
 

@@ -15,4 +15,6 @@ public interface OrderListRepository extends JpaRepository<OrderList,Long> {
 
     @Query("select m from OrderList m join fetch m.book join fetch m.order")//SELECT m*, n*, h* FROM bookpurchase.orderList m inner join....
     List<OrderList> findOrderList(Long userId);
+    @Query("select m from OrderList m where m.orderList_id = :orderId")
+    OrderList findByOrderList_id(Long orderId);
 }

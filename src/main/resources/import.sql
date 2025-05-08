@@ -29,3 +29,4 @@ INSERT INTO book (book_number, title, writer, content, price, count) VALUES (14,
 INSERT INTO book (book_number, title, writer, content, price, count) VALUES (15, '이팩트자바', '이소빈', '이책의 내용이 궁금하시죠? 그렇다면 더 자세한게 책의 내용과 가격의 보세요', 15000, 100);
 
 INSERT INTO book (book_number, title, writer, content, price, count) VALUES (16, '누구인가', '이소빈', '이책의 내용이 궁금하시죠? 그렇다면 더 자세한게 책의 내용과 가격의 보세요', 15000, 100);
+

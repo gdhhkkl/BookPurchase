@@ -57,6 +57,7 @@ public class OrderList {
     public void setPrice(Long price){
         this.book_total_price = price;
     }
+    // 쿠폰=주문목록에 쿠폰번호,할인총핵 속성을 추가함.
 
     /*
     * List<>순서가 있는 데이터의 집합 데이터의 중복을 허용

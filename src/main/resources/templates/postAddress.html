@@ -10,14 +10,22 @@
         <a th:href="@{/}">홈</a>
     </span>
     <div>
-        <label>주소</label>
-        <form action="/addresss" method="post">
-            <select name="basicAddress"  >
-                <option value="기본배송지" selected>기본배송지를 선택해주세요</option>
-                <option th:value="${address.basicAddress}" th:each="address : ${address}"  th:text="${address.basicAddress}"></option>
-            </select>
-            <button type="submit">저장</button>
-        </form>
+        <table>
+            <tr>
+                <th>우편번호</th>
+                <th>기본주소</th>
+                <th>상세주소</th>
+            </tr>
+            <form action="/address" method="post">
+                <tr th:each="address : ${address}">
+                    <td th:text="${address.postNumber}"></td>
+                    <td th:text="${address.basicAddress}"></td>
+                    <td th:text="${address.detailedAddress}"></td>
+                    <td><button type="submit">저장</button></td><!--내가 선택한 주소 저장하는데 오류남-->
+                </tr>
+
+            </form>
+        </table>
     </div>
 </body>
 </html>

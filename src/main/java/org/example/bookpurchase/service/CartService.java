@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -51,7 +52,32 @@ public class CartService {
         }
         else if (carts!=null) {
             CartList list = CartList.createCartList(carts, book , totalPrice ,count);
-            cartListRepository.save(list);
+            /*
+            * 장바구니에 책과 장부기니id(cartid)가 같고 책의 번호가 같은 책이 save될때 이를 수량에 기존의 책에 더해서 upate시켜 중복막아라라
+            * if 장바구니에 담을 책이 기본에 책과 같다면
+            *  수량만 더해서 update시켜라
+            * else
+            * 그냥 save해라
+            * */
+
+            List<CartList> cartList = cartListRepository.findByCart_idAndBook_number(carts.getCart_id(), book.getBook_number());
+
+            if(!cartList.isEmpty()){//Optional<>에 있는 boolean 타입 메소드 간단한 회피!->근데 optional로 하니까 안되네 쌰갈...list는 됨-->이조건문 하니까 걍 터지는데(cartList!=null 하니까 cartList는 배열인데 null하면 []나오니 걍 true )
+
+                Long sumCount =list.getBook_total_count() ;
+                log.info("업데이트 할 책의 수량:{}",sumCount);
+                Book book1 = list.getBook();
+                CartList sameBook = cartListRepository.findByBook(book1);// 현재 장바구니에 담겨있는 책 검색함
+                log.info("같은책 업로드할께요 검색:{},{}",sameBook.getBook().getBook_number(), sameBook.getBook_total_count());
+                Long resultCount= sameBook.getBook_total_count()+ sumCount;
+                Long resultPrice = sameBook.getBook_total_price()*sumCount;
+                sameBook.setBook_total_count(resultCount);
+                sameBook.setBook_total_price(resultPrice);
+                cartListRepository.save(sameBook);
+
+            }else {
+                cartListRepository.save(list);
+            }
         }
 
 
@@ -80,6 +106,16 @@ public class CartService {
         List<CartList> cartLists =cartListRepository.findCartListByCartId(cart.getCart_id());
         return cartLists;
     }
+    public Long findCartId(Long userId){
+        User user = userService.findByUserId(userId);
+        Cart cart =cartRepository.findByCartId(user.getUser_id());
+        Long findcartid = Long.valueOf(cart.getCart_id());
+        return findcartid;
+    }
+
+    public Cart findById(Long id) {
+        return cartRepository.findById(id).orElseThrow(() -> new NullPointerException("카트가 없습니다."));
+    }
 
 
 //    @Transactional
@@ -98,6 +134,9 @@ public class CartService {
 
 
         return result;
+    }
+    public Cart cart(Long userID){
+        return cartRepository.findByCartId(userID);
     }
 
 

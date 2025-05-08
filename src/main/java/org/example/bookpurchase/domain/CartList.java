@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @RequiredArgsConstructor
 @Data
-public class CartList {
+public class CartList extends LocalDate {
     private static final Logger log = LoggerFactory.getLogger(CartList.class);
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,7 +25,9 @@ public class CartList {
 
     private Long book_total_count;
 
-    @ManyToOne(fetch = FetchType.EAGER)//LAZY하지않으면 걍 findall하면 타고타고가서 찾아와줌
+
+
+    @ManyToOne(fetch = FetchType.EAGER)//LAZY하지않으면 걍 findall하면 타고타고가서 찾아와줌    cascade=CascadeType.REMOVE 이거하니까 cart가 null됨
     @JoinColumn(name = "cart_id")
     private Cart cart;
 
@@ -61,6 +64,7 @@ public class CartList {
         log.info("책들어간다.:{}",result);
         return result;
     }
+
 
 
 

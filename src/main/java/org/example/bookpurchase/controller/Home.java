@@ -53,7 +53,7 @@ public class Home {
     @GetMapping("/book")
     public String DitailBook(Model model, @RequestParam(value = "book_number") Long book_number){
 //        log.info("id : {}", book_number);
-        BookDto bookDto = bookService.findById(book_number);
+        BookDto bookDto = BookDto.of(bookService.findById(book_number));
 
         model.addAttribute("bookD", bookDto);
         return "bookDetail";
@@ -97,6 +97,7 @@ public class Home {
         List<OrderList> orderLists =orderService.findOrder(userId);
         System.out.println(Arrays.toString(orderLists.stream().toArray()));
         model.addAttribute("order", orderLists);
+
         return "orderList";
     }
 
@@ -112,14 +113,45 @@ public class Home {
 
             String basicAddress = String.valueOf(data.get("basicAddress"));
             String cardNumber = String.valueOf(data.get("cardNumber"));
+
             log.info("카드버호:{}",cardNumber);
             orderService.order(userId,basicAddress,cardNumber);
 
         return "redirect:/";
 
     }
-    @GetMapping("/orders")
-    public String orders(Model model, HttpSession httpSession){
+
+    @GetMapping("/orderNow")
+    public String orderNow(Model model ,HttpSession httpSession, @RequestParam("book_number") Long book_number){
+        Long userId = Long.valueOf(String.valueOf(httpSession.getAttribute("user_id")));
+
+
+        List<Address> address = addressService.findById(userId);
+        model.addAttribute("address", address);
+        List<Card> cards = cardService.findCard(userId);
+
+        model.addAttribute("card",cards);
+        model.addAttribute("book_number", book_number);
+        return "orderNow";//주소만 저장이되고 책은 저장이 안되세요;
+    }
+
+    @PostMapping("/orderNow")
+    public String orderNow(HttpSession httpSession, @RequestParam HashMap<String, Objects> data, @RequestParam("book_number") Long book_number, @RequestParam("bookCount") Long countNumber){
+        Long userId = Long.valueOf(String.valueOf(httpSession.getAttribute("user_id")));
+        log.info("!!! : {}", countNumber);
+//        log.info("useId in to order post:{}", userId);
+//            log.info("address:{}",data.get("basicAddress"));
+//            Long book_number = Long.valueOf(String.valueOf(data.get("book_number")));
+
+        String basicAddress = String.valueOf(data.get("basicAddress"));
+        String cardNumber = String.valueOf(data.get("cardNumber"));
+
+        orderService.orderNowBook(userId, basicAddress, cardNumber, book_number, countNumber);
+        return "redirect:/";
+    }
+
+    @GetMapping("/orders")//주문페이지
+    public String orders(Model model, HttpSession httpSession ){
         Long userId = Long.valueOf(String.valueOf(httpSession.getAttribute("user_id")));
 
         List<Address> address = addressService.findById(userId);
@@ -127,6 +159,10 @@ public class Home {
         List<Card> cards = cardService.findCard(userId);
         model.addAttribute("address", address);
         model.addAttribute("card",cards);
+       //무슨책을 주문할껀지 목록 보여주세요
+//        Cart cart = cartService.cart(userId);//이게 안되는데//
+//        List<CartList> cartLists = cartListService.findCartList(cart.getCart_id());
+//        model.addAttribute("cartBook", cartLists);
         return "order";
     }
 
@@ -141,34 +177,28 @@ public class Home {
 
 
         log.info("유저 들어왔니?:{}",userId);
-         List<CartList> cart= cartService.findCart(userId);
-
-//         if(cart==null){
-//             model.addAttribute("message","담아둔 책이 없습니다.");
-//             model.addAttribute("searchUrl","/");
-//             return "message"; //작동안됨ㅋㅋㅋㅋ
-//         }
-
-        Long cartTotalPrice = cartService.cartTotalPrice(cart);
-
-        model.addAttribute("cart",cart);
-        model.addAttribute("price", cartTotalPrice);
+        if(cartService.findCartId(userId) ==null){
+            model.addAttribute("message","책을 담아주세요");
+            model.addAttribute("searchUrl","/"); //왜 안먹니?
+            return "message";
+        }else {
+            List<CartList> cart= cartService.findCart(userId);
+            Long cartTotalPrice = cartService.cartTotalPrice(cart);
+            model.addAttribute("cart",cart);
+            model.addAttribute("price", cartTotalPrice);
+        }
 
 
         return "cart";
     }
-//    @GetMapping("/delet")
-//    public String delete(@RequestParam("book_number")Long id){
-//        log.info("delet:{}",id);
-//        cartService.delete(id);
-//        return "redirect:/cart";
-//    }
+
 
     @PostMapping ("/delete")
-    public String delete(@RequestParam("book_number")Long book_number ){
-        log.info("삭제할것:{}",book_number);
+    public String delete(@RequestParam("cart_list_id") Long cart_id, @RequestParam("book_number")Long book_number ){//왜 책 아이디를 가져온겨? 카트리스트 번호는 안되나?
+        log.info("삭제할것:{}",book_number.getClass());
 
-        cartListService.delete(book_number);
+
+        cartListService.delete(cart_id, book_number);
         return "redirect:/cart";
     }
 
@@ -180,16 +210,23 @@ public class Home {
 
     @PostMapping("/login")
     public String login(HttpSession httpSession, @RequestParam HashMap<String, Objects> hashMap, Model model){
-//        if(hashMap.get("identification").equals("") || hashMap.get("password").equals("")){
-//            MessageDto message = new MessageDto("아이디 및 비밀번호를 확인해주세요","/login",RequestMethod.GET, null);
-//            return showMessage(message, model);
-//        }
+        String id = String.valueOf(hashMap.get("identification"));// hashMap에서 objects로 던지기 때문에 .equals로 하면 비교가 안되서 걍 nullExessetion터지느겨..
+        String pw = String.valueOf(hashMap.get("password"));
+        List<User> userIdAndPw= userService.findUSer(id, pw);
+
+        if(id.equals("") || pw.equals("")){
+            model.addAttribute("message","제대로 입력되지 않았습니다. 다시 작성해주세요");
+            model.addAttribute("searchUrl","/login");
+            return "message";
+        } else if (userIdAndPw.isEmpty()) {
+            model.addAttribute("message","없는 해원입니다. 회원가입해주세요");
+            model.addAttribute("searchUrl","/join");
+            return "message";
+        }
         User user = userService.login(hashMap);//헤시맵으로 던짐
-//        log.info("user_id: {}",user.getIdentification());
 
          httpSession.setAttribute("user_id", user.getIdentification().toString());
 
-//        log.info("sesson : {}", httpSession.getAttribute("user_id"));
         return "redirect:/";//파라미터 주소
     }
 
@@ -211,11 +248,21 @@ public class Home {
     }
     @PostMapping("/join")
     public String joins(UserDto userDto,Model model){
-//        log.info("내용 : {}",userDto);
-        model.addAttribute("message","회원가입 성공");
-        model.addAttribute("searchUrl","/");
-        userService.creat(userDto);
-        return "message";
+
+
+        try {
+            userService.checkUser(userDto);
+            model.addAttribute("message","회원가입 성공");
+            model.addAttribute("searchUrl","/");
+            userService.creat(userDto);
+            return "message";
+        }catch (IllegalArgumentException e){
+            model.addAttribute("message","다시 시도 해주세요.아이디어 또는 비번이 이미 있습니다."); //근데 뭐가 문제인지 알수가 없엇 답답하넨..이거 어떻게 고치냐?
+            model.addAttribute("searchUrl","/join");
+            return "message";
+        }
+
+
     }
 
 
@@ -295,5 +342,12 @@ public class Home {
 //        model.addAttribute("prrams",params);
 //        return "messageDto";
 //    }
+    @PostMapping("/orderDelete")
+    public String orderDelete(@RequestParam("orderID") Long orderListId ){//왜 책 아이디를 가져온겨? 카트리스트 번호는 안되나?
+        log.info("삭제할것:{}",orderListId.getClass());
+
+        orderService.delete(orderListId);
+        return "redirect:/order";
+    }
 
 }
