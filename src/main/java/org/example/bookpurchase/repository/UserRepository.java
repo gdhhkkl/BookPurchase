@@ -30,4 +30,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByPassword(String password);
 //    @Query("select m from User m where m.identification = :id")
 //    User findById(String id);
+    @Query("select m from User m where  m.identification = :userIdentification")
+    User findByUserIdentification (String userIdentification);
 }

@@ -135,8 +135,9 @@ public class CartService {
 
         return result;
     }
-    public Cart cart(Long userID){
-        return cartRepository.findByCartId(userID);
+    public Cart cart(Long userId){
+        User user = userService.findByUserId(userId);
+        return cartRepository.findByCartId(user.getUser_id());
     }
 
 

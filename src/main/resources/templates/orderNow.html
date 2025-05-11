@@ -6,6 +6,26 @@
 </head>
 <body>
 <div>
+    <span>
+        <a th:href="@{/}">홈</a>
+    </span>
+    <div>
+        <h1>주문도서</h1>
+        <table>
+            <tr>
+                <th>제목</th>
+                <th>저자</th>
+                <th>수량</th>
+                <th>가격</th>
+            </tr>
+            <tr th:each="book : ${book}">
+                <td th:text="${book.title}"></td>
+                <td th:text="${book.writer}"></td>
+                <td th:text="${book.count}"></td>
+                <td th:text="${book.price}"></td>
+            </tr>
+        </table>
+    </div>
     <form action="/orderNow" method="post">
         <input type="hidden" name="book_number" id="bookNumber" th:value="${book_number}">
         <input type="hidden" name="bookCount" id="bookCount" th:value="${book_count}">
@@ -20,6 +40,12 @@
             <select name="cardNumber"  >
                 <option selected>결제 수단 선택</option>
                 <option th:each="cards : ${card}" th:value="${cards.getCardNumber()}"   th:text="${cards.getCardNumber()}"></option>
+            </select>
+        </div>
+        <div>
+            <select name="coupon">
+                <option selected> 쿠폰선택</option>
+                <option th:each="coupon : ${coupon}" th:text="${coupon.getCouponType()}" th:value="${coupon.getCouponType()}" ></option>
             </select>
         </div>
         <button type="submit" onclick="init()">결제</button>

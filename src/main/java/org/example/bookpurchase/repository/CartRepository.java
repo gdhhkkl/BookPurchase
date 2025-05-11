@@ -17,7 +17,7 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
 //    @Query("select m from Cart m where m.user.user_id = :user_id")
 //    Cart findByUserId(Long user_Id);
 
-    @Query("select m from Cart m where m.cart_id = :userId")
+    @Query("select m from Cart m where m.user.user_id = :userId")
     Cart findByCartId(Long userId);
 
     @Query("select m from Cart m join fetch m.user")

@@ -28,6 +28,11 @@ public class OrderList {
 
     private Long book_total_price;
 
+    @ManyToOne
+    private Coupon coupon;
+
+    private Long savePrice;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(nullable = false)
     private Order order;

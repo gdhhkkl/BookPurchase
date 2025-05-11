@@ -17,12 +17,12 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class CardService {
-    private static final Logger log = LoggerFactory.getLogger(CardService.class);
-    @Autowired
-    private final CardRepository cardRepository;
-    @Autowired
 
-    private UserService userService;
+
+    private final CardRepository cardRepository;
+
+
+    private final UserService userService;
     public Card addCard(CardDto cardDto, Long userId){
         User user = userService.findByUserId(userId);
         return save(new Card(0L, //new Card()이 안에 넣는것도 .하는거랑 동일함
@@ -32,15 +32,15 @@ public class CardService {
                 user
         ));
     }
-    @Transactional
+//    @Transactional
     public Card save(Card card){
         return cardRepository.save(card);
     }
-    @Transactional
+//    @Transactional
     public List<Card> findCard(Long userId){
         User user =userService.findByUserId(userId);
         List<Card> cards = cardRepository.findByUser(user);
-        log.info("뭐노:{}",cards.get(0).getCard_id());
+//        log.info("뭐노:{}",cards.get(0).getCard_id());
         return cards;
     }
 //    public List<Card> findById(Long userId){

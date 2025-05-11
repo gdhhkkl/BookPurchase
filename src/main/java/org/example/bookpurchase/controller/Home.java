@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.example.bookpurchase.domain.*;
 import org.example.bookpurchase.dto.*;
+import org.example.bookpurchase.repository.CouponListRepository;
 import org.example.bookpurchase.service.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -34,6 +35,9 @@ public class Home {
     private final AddressService addressService;
     private final CardService cardService;
     private final CartListService cartListService;
+    private final CouponService couponService;
+    private final CouponListService couponListService;
+    private final CouponListRepository couponListRepository;
 
 //    public Home(BookService bookService){
 //        this.bookService = bookService;
@@ -97,6 +101,7 @@ public class Home {
         List<OrderList> orderLists =orderService.findOrder(userId);
         System.out.println(Arrays.toString(orderLists.stream().toArray()));
         model.addAttribute("order", orderLists);
+        
 
         return "orderList";
     }
@@ -116,22 +121,38 @@ public class Home {
 
             log.info("카드버호:{}",cardNumber);
             orderService.order(userId,basicAddress,cardNumber);
+            //쿠폰 사용여부 여기서 처리해줘야함
 
         return "redirect:/";
 
     }
 
     @GetMapping("/orderNow")
-    public String orderNow(Model model ,HttpSession httpSession, @RequestParam("book_number") Long book_number){
+    public String orderNow(Model model ,HttpSession httpSession,@RequestParam("book_number")Long book_number){
         Long userId = Long.valueOf(String.valueOf(httpSession.getAttribute("user_id")));
-
+        if(userId==null){
+            model.addAttribute("message","로그인 후 이용해 주세요");
+            model.addAttribute("searchUrl","/login");
+            return "message";
+        }
 
         List<Address> address = addressService.findById(userId);
         model.addAttribute("address", address);
         List<Card> cards = cardService.findCard(userId);
-
         model.addAttribute("card",cards);
+
         model.addAttribute("book_number", book_number);
+
+        List<Book> book =bookService.findBookId(book_number);
+        model.addAttribute("book",book);
+        User user = userService.findByUserId(userId);
+
+        Coupon coupon = couponService.findCouponId(user.getUser_id());
+
+        List<CouPonList> couPonLists = couponListService.findCouponList(coupon.getId());
+
+        model.addAttribute("coupon", couPonLists);
+        
         return "orderNow";//주소만 저장이되고 책은 저장이 안되세요;
     }
 
@@ -159,10 +180,8 @@ public class Home {
         List<Card> cards = cardService.findCard(userId);
         model.addAttribute("address", address);
         model.addAttribute("card",cards);
-       //무슨책을 주문할껀지 목록 보여주세요
-//        Cart cart = cartService.cart(userId);//이게 안되는데//
-//        List<CartList> cartLists = cartListService.findCartList(cart.getCart_id());
-//        model.addAttribute("cartBook", cartLists);
+
+
         return "order";
     }
 
@@ -252,9 +271,12 @@ public class Home {
 
         try {
             userService.checkUser(userDto);
-            model.addAttribute("message","회원가입 성공");
+            model.addAttribute("message","회원가입 성공!! 신규회원쿠폰 발급 완료!");
             model.addAttribute("searchUrl","/");
-            userService.creat(userDto);
+            User user = userService.creat(userDto);
+            Coupon coupon = couponService.creatCoupon(user);
+            couponListService.createCouponList(coupon);
+
             return "message";
         }catch (IllegalArgumentException e){
             model.addAttribute("message","다시 시도 해주세요.아이디어 또는 비번이 이미 있습니다."); //근데 뭐가 문제인지 알수가 없엇 답답하넨..이거 어떻게 고치냐?
@@ -313,6 +335,7 @@ public class Home {
     public String card(HttpSession httpSession, CardDto cardDto){
         log.info("CardDto:{}",cardDto.getCardNumber());
         Long userId = Long.valueOf(String.valueOf(httpSession.getAttribute("user_id")));
+
         cardService.addCard(cardDto,userId);
         return "card";
     }
@@ -341,7 +364,23 @@ public class Home {
 //    private String showMessage(final MessageDto params, Model model){
 //        model.addAttribute("prrams",params);
 //        return "messageDto";
-//    }
+
+    @GetMapping("/coupon")
+    public String coupon(HttpSession httpSession,Model model){
+
+        Long userId = Long.valueOf(String.valueOf(  httpSession.getAttribute("user_id")));
+        User user = userService.findByUserId(userId);
+
+        Coupon coupon = couponService.findCouponId(user.getUser_id());
+
+        List<CouPonList> couPonLists = couponListService.findCouponList(coupon.getId());
+        log.info("쿠폰리스트 찾기:{}{}",couPonLists.get(0).getCouponType());
+        model.addAttribute("coupon", couPonLists);
+
+        //유저의 id를 가지고와서 쿠폰list를 가져와서 model 로 넘기기
+        return "coupon";
+    }
+
     @PostMapping("/orderDelete")
     public String orderDelete(@RequestParam("orderID") Long orderListId ){//왜 책 아이디를 가져온겨? 카트리스트 번호는 안되나?
         log.info("삭제할것:{}",orderListId.getClass());

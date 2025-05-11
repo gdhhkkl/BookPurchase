@@ -61,4 +61,8 @@ public class BookService {
         return book;
     }
 
+    public List<Book> findBookId(Long book_number){
+        return bookRepository.findByBook_number(book_number);
+    }
+
 }

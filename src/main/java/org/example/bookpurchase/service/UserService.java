@@ -31,9 +31,9 @@ public class UserService {
 //        return userRepository.findAll();
 //    }
 
-    public void creat(UserDto userDto){
+    public User creat(UserDto userDto){
 
-        userRepository.save(User.toEntity(userDto));
+        return userRepository.save(User.toEntity(userDto));
 
 
     }
@@ -77,5 +77,8 @@ public class UserService {
         return user;
     }
 
+    public User finduser(String userIdentification){
+        return userRepository.findByUserIdentification(userIdentification);
+    }
 
 }

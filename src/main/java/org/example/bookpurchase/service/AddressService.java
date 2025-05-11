@@ -28,7 +28,7 @@ public class AddressService {
     private final UserService userService;
 
 
-    @Transactional
+//    @Transactional
     public Address addAddress(AddressDTO addressDTO, Long userId) {
         User user = userService.findByUserId(userId);
         log.info("유저확인 : {}",user.getUser_id());
@@ -44,7 +44,7 @@ public class AddressService {
                 user
         ));
     }
-    @Transactional
+//    @Transactional
     public Address save(Address address) {
         log.info("뭐가 들어왔니:{}", address);
         return addressRepository.save(address);
