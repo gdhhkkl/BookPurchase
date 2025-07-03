@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <span>
+        <a th:href="@{/}">홈</a>
+    </span>
+    <h1>쿠폰함</h1>
+    <table>
+        <tr>
+            <th>쿠폰명</th>
+            <th>발급일</th>
+            <th>만료일</th>
+            <th>사용시작일</th>
+            <th>사용유무</th>
+        </tr>
+        <tr th:each="coupon : ${coupon}">
+            <td th:text="${coupon.getCouponType()}"></td>
+            <td th:text="${coupon.getIssueDate()}"></td>
+            <td th:text="${coupon.getExpiryDate()}"></td>
+            <td th:text="${coupon.getUseDate()}"></td>
+            <td th:text="${coupon.isUtilization()}"></td>
+        </tr>
+    </table>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<span>
+        <a th:href="@{/}">홈</a>
+    </span>
+<div>
+    <table>
+        <tr>
+            <th>카드번호</th>
+            <th>카드날짜</th>
+            <th>카드타입</th>
+        </tr>
+
+        <tr th:each="cards : ${card}">
+            <form action="/card" method="post">
+                <td th:text="${cards.getCardNumber()}"></td>
+                <td th:text="${cards.getCardDate()}"></td>
+                <td th:text="${cards.getCardType()}"></td>
+                <td><button type="submit">저장</button></td>
+            </form>
+        </tr>
+    </table>
+</div>
+</body>
+</html>

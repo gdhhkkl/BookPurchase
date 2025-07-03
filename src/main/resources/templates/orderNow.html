@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div>
+    <span>
+        <a th:href="@{/}">홈</a>
+    </span>
+    <div>
+        <h1>주문도서</h1>
+        <table>
+            <tr>
+                <th>제목</th>
+                <th>저자</th>
+                <th>수량</th>
+                <th>가격</th>
+            </tr>
+            <tr th:each="book : ${book}">
+                <td th:text="${book.title}"></td>
+                <td th:text="${book.writer}"></td>
+                <td th:text="${bookCount}"></td>
+                <td th:text="${price}"></td>
+            </tr>
+
+        </table>
+    </div>
+    <form action="/orderNow" method="post">
+        <input type="hidden" name="book_number" id="bookNumber" th:value="${book_number}">
+        <input type="hidden" name="bookCount" id="bookCount" th:value="${book_count}">
+        <input type="hidden" name="bookPrice" id="bookPrice" th:value="${bookPrice}">
+        <h3 id="price" th:text="${price}" th:attr="data-original-price=${price}"></h3>
+        <div>
+            <select name="basicAddress"  >
+                <option  selected>배송지 선택</option>
+                <option  th:value="${address.basicAddress}" th:each="address : ${address}"  th:text="${address.basicAddress}"></option>
+
+            </select>
+        </div>
+        <div>
+            <select name="cardNumber"  >
+                <option selected>결제 수단 선택</option>
+                <option th:each="cards : ${card}" th:value="${cards.getCardNumber()}"   th:text="${cards.getCardNumber()}"></option>
+            </select>
+        </div>
+        <div>
+            <select name="coupon" id="couponType" onchange="saveMany()">
+                <option selected> 쿠폰선택</option>
+                <option th:each="coupon : ${coupon}" th:text="${coupon.getCouponType()}" th:value="${coupon.getCouponType()}" th:if ="${!coupon.isUtilization()}"></option>
+                <option value="none" >쿠폰선택안함</option>
+            </select>
+        </div>
+        <button type="submit" onclick="init()">결제</button>
+    </form>
+</div>
+<script type="text/javascript">
+
+        // const bookId = document.getElementById("bookNumber").value;
+        const count = document.getElementById("bookCount").value;
+
+        document.getElementById("bookCount").value = Number(document.cookie.split("=")[1]);
+
+        function init() {//초기화를 해줘야해서 init필요한거임
+            document.cookie = "";
+        }
+
+        function saveMany(){
+            const coupon = document.getElementById("couponType").value;
+
+
+            let priceEl = document.getElementById("price");
+            // let price = Number(priceEl.innerText);
+            const originalPrice = Number(priceEl.getAttribute("data-original-price"))
+            let discountPrice;
+            if(coupon.includes('10%할인')){
+                discountPrice=originalPrice*0.9;
+            }else if(coupon.includes('100원할인')){
+                discountPrice=originalPrice-100;
+            }else if(coupon==='none') {
+                discountPrice = originalPrice;
+            }
+            priceEl.innerText = discountPrice.toFixed(0);
+            document.getElementById("bookPrice").value = discountPrice.toFixed(0);
+
+
+        }
+</script>
+</body>
+</html>

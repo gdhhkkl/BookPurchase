@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+    <span>
+        <a th:href="@{/}">홈</a>
+    </span>
+
+    <table>
+
+        <tr>
+            <th>책</th>
+            <th>저자</th>
+            <th>수량</th>
+            <th>가격</th>
+            <th>....</th>
+        </tr>
+
+        <tr th:each="carts : ${cart}">
+
+            <form action="/delete" method="post">
+                <input type="hidden" name="cart_list_id" th:value="${carts.getCart().cart_id}">
+                <input type="hidden" name="book_number" th:value="${carts.getBook().book_number}">
+                <td th:text="${carts.getBook().title}"></td>
+                <td th:text="${carts.getBook().writer}"></td>
+                <td th:text="${carts.getBook_total_count()}"></td>
+                <td th:text="${carts.getBook_total_price()}"></td>
+                <td><button type="submit">삭제</button></td>
+            </form>
+        </tr>
+    </table>
+
+
+    <div>
+        <input type="hidden" th:value="${price}" id="price"/>
+        <h3>총금액</h3>
+        <h2 th:text="${price}" ></h2>
+    </div>
+
+    <form id="editCountForm" action="/orders" method="get" >        <!--액션이랑 get자체때무에 파라미터가 orders?로 나가는거래-->
+
+        <button>주문</button>
+    </form>
+
+
+
+    <script type = "text/javascript">
+        const price = document.getElementById("price");
+        console.log('값' + price.value);
+        const editCountForm = document.getElementById('editCountForm');
+        console.log(editCountForm);
+        // const value = price.options[price.selectedIndex].value;
+        editCountForm.addEventListener('click', function (event) {
+
+            if (Number(price.value) === 0) {
+                event.preventDefault();
+                alert('장바구니에 상품이 담겨있지 않습니다. 주문할수없습니다.');
+            } else {
+                event.preventDefault();
+                editCountForm.submit(); //왜 order?이렇게 될까여? 파라미터에서 반환되는 조건이 빈었서 ?만 나가는건데 ....이걸 구지,,,
+            }
+        });
+    </script>
+</body>
+</html>
