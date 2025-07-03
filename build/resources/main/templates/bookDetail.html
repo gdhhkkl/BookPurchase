@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>SooBeen</title>
+</head>
+<body>
+    <span>
+        <a th:href="@{/}">홈</a>
+    </span>
+    <form action="/cart" method="post">
+        <input type="hidden" name="book_number"  th:value="${bookD.book_number}">
+        <div  th:text="${bookD.title}"></div>
+        <div  th:text="${bookD.writer}"></div>
+        <div  th:text="${bookD.content}"></div>
+        <div  th:text="${bookD.price}"></div>
+
+        <div>
+            <input type="number" id="bookCount" onclick="copyValue(); setCount()" name="count" min="1" value="1"/>
+        </div>
+
+        <button type="submit">장바구니</button>
+    </form>
+    <form action="/orderNow" method="get">
+        <input type="hidden" name="book_number" th:value="${bookD.book_number}">
+        <input  type="hidden" name="bookCount" id="hiddenCount">
+       
+        <button type="submit">바로구매</button>
+    </form>
+    <script type="text/javascript">
+        function copyValue(){
+            const count = document.getElementById("bookCount").value;//값을 가져오지만 문자열이다.
+            console.log("bookCount",count);
+            document.getElementById("hiddenCount").value = Number(count);
+        }
+
+        function setCount() {
+            document.cookie = "count"+"="+document.getElementById("hiddenCount").value; //쿠키써서 저장소에 저장
+
+        }
+
+    </script>
+
+
+</body>
+</html>

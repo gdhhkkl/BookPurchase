@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>SooBeen</title>
+
+    <link>
+</head>
+<body>
+<!--    <span>-->
+<!--         <h5 th:if="${user_id==null}" th:text="${user.name}"></h5>-->
+<!--    </span>-->
+    <span>
+        <a th:if="${user_id==null}" th:href="@{/login}">로그인</a>
+        <a th:href="@{/myPage}">마이페이지</a>
+        <a th:href="@{/cart}">장바구니</a>
+        <a th:href="@{/order}">주문/배송</a>
+    </span>
+    <span >
+        <a th:if="${user_id!=null}"  th:href="@{/logout}">로그아웃</a>
+    </span>
+    <div class="table">
+        <table class="tableList">
+            <tr>
+                <th>제목</th>
+                <th>저자</th>
+                <th>가격</th>
+                <th>보기</th>
+            </tr>
+            <tr th:each="book : ${book}">
+                <td th:text="${book.title}"></td>
+                <td th:text="${book.writer}"></td>
+                <td th:text="${book.price}"></td>
+                <td><a th:href="@{/book(book_number=${book.book_number})}">보기</a></td>
+            </tr>
+        </table>
+    </div>
+<!--    <style>-->
+<!--        .table{-->
+<!--            display: flex;-->
+<!--            justify-content: center;-->
+<!--            margin-top: 5%;-->
+<!--        }-->
+<!--    </style>-->
+</body>
+</html>
